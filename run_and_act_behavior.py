@@ -1,8 +1,9 @@
 import sys
 from copy import deepcopy
+import argparse
 
 # You would also have a loader function similar to `load_pddl_problem_line_by_line` adapted for behavior domain
-from load_pddl import load_pddl_problem_line_by_line
+from load_pddl_behavior import load_pddl_problem_line_by_line
 
 #########################################################
 # Actions definition for behavior domain
@@ -11,6 +12,7 @@ from load_pddl import load_pddl_problem_line_by_line
 actions = {
     "navigate_to": {
         "parameters": ["?objto", "?agent"],
+        "param_types": ["object", "agent"],
         "preconditions": ("not", ("in_reach_of_agent", "?objto")),
         "effects": {
             "add": [("in_reach_of_agent", "?objto")],
@@ -33,6 +35,7 @@ actions = {
 
     "grasp": {
         "parameters": ["?obj", "?agent"],
+        "param_types": ["object", "agent"],
         "preconditions": ("and",
             ("not", ("holding", "?obj")),
             ("not", ("handsfull", "?agent")),
@@ -79,6 +82,7 @@ actions = {
 
     "release": {
         "parameters": ["?obj", "?agent"],
+        "param_types": ["object", "agent"],
         "preconditions": ("holding", "?obj"),
         "effects": {
             "del": [("holding", "?obj"), ("handsfull", "?agent")]
@@ -87,6 +91,7 @@ actions = {
 
     "place_ontop": {
         "parameters": ["?obj_in_hand", "?obj", "?agent"],
+        "param_types": ["object", "object", "agent"],
         "preconditions": ("and",
             ("holding", "?obj_in_hand"),
             ("in_reach_of_agent", "?obj")
@@ -99,6 +104,7 @@ actions = {
 
     "place_inside": {
         "parameters": ["?obj_in_hand", "?obj", "?agent"],
+        "param_types": ["object", "object", "agent"],
         "preconditions": ("and",
             ("holding", "?obj_in_hand"),
             ("in_reach_of_agent", "?obj"),
@@ -111,6 +117,7 @@ actions = {
     },
     "open": {
         "parameters": ["?obj", "?agent"],
+        "param_types": ["object", "agent"],
         "preconditions": ("and",
             ("in_reach_of_agent", "?obj"),
             ("not", ("open", "?obj")),
@@ -122,6 +129,7 @@ actions = {
     },
 
     "close": {
+        "param_types": ["object", "agent"],
         "parameters": ["?obj", "?agent"],
         "preconditions": ("and",
             ("in_reach_of_agent", "?obj"),
@@ -135,6 +143,7 @@ actions = {
 
     "slice": {
         "parameters": ["?obj", "?knife", "?agent"],
+        "param_types": ["object", "knife_n_01", "agent"],
         "preconditions": ("and",
             ("holding", "?knife"),
             ("in_reach_of_agent", "?obj")
@@ -146,6 +155,7 @@ actions = {
 
     "slice-carvingknife": {
         "parameters": ["?obj", "?knife", "?board", "?agent"],
+        "param_types": ["object", "carving_knife_n_01", "countertop_n_01", "agent"],
         "preconditions": ("and",
             ("in_reach_of_agent", "?obj"),
             ("holding", "?knife"),
@@ -159,6 +169,7 @@ actions = {
 
     "place_onfloor": {
         "parameters": ["?obj_in_hand", "?floor", "?agent"],
+        "param_types": ["object", "floor_n_01", "agent"],
         "preconditions": ("and",
             ("holding", "?obj_in_hand"),
             ("in_reach_of_agent", "?floor")
@@ -171,6 +182,7 @@ actions = {
 
     "place_nextto": {
         "parameters": ["?obj_in_hand", "?obj", "?agent"],
+        "param_types": ["object", "object", "agent"],
         "preconditions": ("and",
             ("holding", "?obj_in_hand"),
             ("in_reach_of_agent", "?obj")
@@ -184,6 +196,7 @@ actions = {
 
     "place_nextto_ontop": {
         "parameters": ["?obj_in_hand", "?obj1", "?obj2", "?agent"],
+        "param_types": ["object", "object", "object", "agent"],
         "preconditions": ("and",
             ("holding", "?obj_in_hand"),
             ("in_reach_of_agent", "?obj1")
@@ -198,6 +211,7 @@ actions = {
 
     "clean_stained_brush": {
         "parameters": ["?scrub_brush", "?obj", "?agent"],
+        "param_types": ["scrub_brush_n_01", "object", "agent"],
         "preconditions": ("and",
             ("in_reach_of_agent", "?obj"),
             ("stained", "?obj"),
@@ -211,6 +225,7 @@ actions = {
 
     "clean_stained_cloth": {
         "parameters": ["?rag", "?obj", "?agent"],
+        "param_types": ["piece_of_cloth_n_01", "object", "agent"],
         "preconditions": ("and",
             ("in_reach_of_agent", "?obj"),
             ("stained", "?obj"),
@@ -224,6 +239,7 @@ actions = {
 
     "clean_stained_handowel": {
         "parameters": ["?hand_towel", "?obj", "?agent"],
+        "param_types": ["hand_towel_n_01", "object", "agent"],
         "preconditions": ("and",
             ("in_reach_of_agent", "?obj"),
             ("stained", "?obj"),
@@ -237,6 +253,7 @@ actions = {
 
     "clean_stained_towel": {
         "parameters": ["?hand_towel", "?obj", "?agent"],
+        "param_types": ["towel_n_01", "object", "agent"],
         "preconditions": ("and",
             ("in_reach_of_agent", "?obj"),
             ("stained", "?obj"),
@@ -250,6 +267,7 @@ actions = {
 
     "clean_stained_dishtowel": {
         "parameters": ["?hand_towel", "?obj", "?agent"],
+        "param_types": ["dishtowel_n_01", "object", "agent"],
         "preconditions": ("and",
             ("in_reach_of_agent", "?obj"),
             ("stained", "?obj"),
@@ -263,6 +281,7 @@ actions = {
 
     "clean_stained_dishwasher": {
         "parameters": ["?dishwasher", "?obj", "?agent"],
+        "param_types": ["dishwasher_n_01", "object", "agent"],
         "preconditions": ("and",
             ("holding", "?obj"),
             ("in_reach_of_agent", "?dishwasher")
@@ -274,6 +293,7 @@ actions = {
 
     "clean_stained_rag": {
         "parameters": ["?rag", "?obj", "?agent"],
+        "param_types": ["rag_n_01", "object", "agent"],
         "preconditions": ("and",
             ("in_reach_of_agent", "?obj"),
             ("stained", "?obj"),
@@ -287,6 +307,7 @@ actions = {
     
     "soak": {
         "parameters": ["?obj1", "?sink", "?agent"],
+        "param_types": ["object", "sink_n_01", "agent"],
         "preconditions": ("and",
             ("holding", "?obj1"),
             ("in_reach_of_agent", "?sink"),
@@ -299,6 +320,7 @@ actions = {
 
     "soak_teapot": {
         "parameters": ["?obj1", "?agent", "?teapot"],
+        "param_types": ["object", "agent", "teapot_n_01"],
         "preconditions": ("and",
             ("holding", "?obj1"),
             ("in_reach_of_agent", "?teapot")
@@ -310,6 +332,7 @@ actions = {
 
     "place_under": {
         "parameters": ["?obj_in_hand", "?obj", "?agent"],
+        "param_types": ["object", "object", "agent"],
         "preconditions": ("and",
             ("holding", "?obj_in_hand"),
             ("in_reach_of_agent", "?obj")
@@ -322,6 +345,7 @@ actions = {
 
     "toggle_on": {
         "parameters": ["?obj", "?agent"],
+        "param_types": ["object", "agent"],
         "preconditions": ("and",
             ("in_reach_of_agent", "?obj"),
             ("not", ("handsfull", "?agent"))
@@ -332,6 +356,7 @@ actions = {
     },
 
     "clean_dusty_rag": {
+        "param_types": ["rag_n_01", "object", "agent"],
         "parameters": ["?rag", "?obj", "?agent"],
         "preconditions": ("and",
             ("in_reach_of_agent", "?obj"),
@@ -345,6 +370,7 @@ actions = {
 
     "clean_dusty_towel": {
         "parameters": ["?towel", "?obj", "?agent"],
+        "param_types": ["towel_n_01", "object", "agent"],
         "preconditions": ("and",
             ("in_reach_of_agent", "?obj"),
             ("dusty", "?obj"),
@@ -357,6 +383,7 @@ actions = {
 
     "clean_dusty_cloth": {
         "parameters": ["?rag", "?obj", "?agent"],
+        "param_types": ["piece_of_cloth_n_01", "object", "agent"],
         "preconditions": ("and",
             ("in_reach_of_agent", "?obj"),
             ("dusty", "?obj"),
@@ -369,6 +396,7 @@ actions = {
 
     "clean_dusty_brush": {
         "parameters": ["?scrub_brush", "?obj", "?agent"],
+        "param_types": ["scrub_brush_n_01", "object", "agent"],
         "preconditions": ("and",
             ("in_reach_of_agent", "?obj"),
             ("dusty", "?obj"),
@@ -381,6 +409,7 @@ actions = {
 
     "clean_dusty_vacuum": {
         "parameters": ["?vacuum", "?obj", "?agent"],
+        "param_types": ["vacuum_n_04", "object", "agent"],
         "preconditions": ("and",
             ("in_reach_of_agent", "?obj"),
             ("dusty", "?obj"),
@@ -393,6 +422,7 @@ actions = {
 
     "freeze": {
         "parameters": ["?obj", "?fridge"],
+        "param_types": ["object", "electric_refrigerator_n_01"],
         "preconditions": ("and",
             ("inside", "?obj", "?fridge"),
             ("not", ("frozen", "?obj"))
@@ -404,6 +434,7 @@ actions = {
 
     "cook": {
         "parameters": ["?obj", "?pan"],
+        "param_types": ["object", "pan_n_01"],
         "preconditions": ("and",
             ("ontop", "?obj", "?pan"),
             ("not", ("cooked", "?obj"))
@@ -413,8 +444,6 @@ actions = {
         }
     }
 
-    
-    
 }
 
 
@@ -457,12 +486,36 @@ def _check_condition_list(state, cond, param_map, all_objects, characters):
         pred_args = substitute(cond[1:], param_map)
         return pred in state and pred_args in state[pred]
 
-def check_preconditions(state, action_def, args, all_objects, characters):
+def check_preconditions(state, action_def, args, all_objects, characters, object_types):
     param_map = {p: a for p, a in zip(action_def["parameters"], args)}
+    # First, check types
+    if "param_types" in action_def:
+        for (param, arg, ptype) in zip(action_def["parameters"], args, action_def["param_types"]):
+            # Check if arg matches ptype
+            if ptype == "agent":
+                # arg must be in characters
+                if arg not in characters:
+                    return False
+            else:
+                # arg must be in all_objects or characters, and must match object_types
+                if arg not in object_types:
+                    return False
+                # If ptype == "object", it's okay as long as it's not agent.
+                # If ptype is a specific subtype (e.g., knife_n_01), must match exactly
+                if ptype != "object" and ptype != "agent":
+                    if object_types[arg] != ptype:
+                        return False
+                # If ptype == "object", any object (not an agent) is allowed
+                if ptype == "object":
+                    # Ensure it's not an agent
+                    if arg in characters:
+                        return False
+
     precond = action_def["preconditions"]
     if not precond:
         return True
     return _check_condition_list(state, precond, param_map, all_objects, characters)
+
 
 def apply_effects(state, effects_list, param_map):
     """Add positive effects."""
@@ -483,7 +536,7 @@ def remove_effects(state, effects_list, param_map):
             if not state[pred]:
                 del state[pred]
 
-def apply_action(state, action_def, args, all_objects, characters):
+def apply_action(state, action_def, args, all_objects, characters, object_types):
     new_state = deepcopy(state)
     param_map = {p: a for p, a in zip(action_def["parameters"], args)}
     eff = action_def.get("effects", {})
@@ -578,10 +631,10 @@ def check_goal(state, goal_conditions):
 
 if __name__ == "__main__":
     # Provide paths to PDDL problem and SAS plan
-    problem_file = sys.argv[1] if len(sys.argv) > 1 else "behavior_problem.pddl"
+    problem_file = sys.argv[1] if len(sys.argv) > 1 else "behavior_pddls/chopping_vegetables_0_Rs_int_0_2021-05-25_22-01-16.pddl"
     plan_file = sys.argv[2] if len(sys.argv) > 2 else "sas_plan"
 
-    initial_state, goal_conditions, all_objects, characters = load_pddl_problem_line_by_line(problem_file)
+    initial_state, goal_conditions, all_objects, characters, object_types = load_pddl_problem_line_by_line(problem_file)
 
     with open(plan_file, "r") as f:
         sas_plan = [line.strip() for line in f if line.strip() and not line.startswith(";")]
@@ -602,9 +655,10 @@ if __name__ == "__main__":
         if action_name not in actions:
             print("Action not defined in dictionary.")
             break
-        if check_preconditions(state, actions[action_name], args, all_objects, characters):
+        if check_preconditions(state, actions[action_name], args, all_objects, characters, object_types):
             old_state = deepcopy(state)
-            state = apply_action(state, actions[action_name], args, all_objects, characters)
+            state = apply_action(state, actions[action_name], args, all_objects, characters, object_types)
+
             added, removed = compute_state_diff(old_state, state)
             print("Action executed:", action_name, args)
             print("Added:", added)

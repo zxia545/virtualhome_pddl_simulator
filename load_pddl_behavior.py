@@ -1,149 +1,122 @@
-# load_pddl_behavior.py
-
 def load_pddl_problem_line_by_line(file_path):
     """
-    Load the initial state, goal conditions, and objects from a PDDL problem file by parsing line-by-line for the behavior domain.
+    Load the initial state, goal conditions, and objects from a PDDL problem file by parsing a combined string.
+    This approach is more robust if the entire PDDL is mostly on one line.
     
-    Args:
-        file_path (str): Path to the PDDL problem file.
     Returns:
-        tuple: (initial_state, goal_conditions, all_objects, characters)
-            initial_state (dict): A dict where keys are predicates (str),
-                                  and values are sets of tuples representing arguments.
-            goal_conditions (dict): A dict where keys are predicates (str),
-                                  and values are sets of tuples representing arguments.
-            all_objects (set): A set of all objects.
-            characters (set): A set of agents/characters.
+        (initial_state, goal_conditions, all_objects, characters, object_types)
     """
     with open(file_path, 'r') as f:
-        lines = f.readlines()
+        content = f.read()
 
-    # Clean lines: strip whitespace
-    lines = [l.strip() for l in lines]
+    # Remove excessive whitespace
+    content = " ".join(content.split())
 
+    # Helper function to extract section content between parentheses after a given keyword
+    def extract_section(keyword):
+        start_idx = content.find(keyword)
+        if start_idx == -1:
+            return ""
+        # Find the matching parenthesis after keyword
+        # We'll start searching from the position of keyword
+        depth = 0
+        section_str = ""
+        # Start scanning from the first '(' after keyword
+        start_paren = content.find("(", start_idx)
+        if start_paren == -1:
+            return ""
+        for i in range(start_paren, len(content)):
+            ch = content[i]
+            if ch == '(':
+                depth += 1
+            elif ch == ')':
+                depth -= 1
+            section_str += ch
+            if depth == 0:
+                break
+        return section_str.strip()
+
+    objects_str = extract_section("(:objects")
+    init_str = extract_section("(:init")
+    goal_str = extract_section("(:goal")
+
+    object_types = {}
     initial_state = {}
     goal_conditions = {}
     all_objects = set()
     characters = set()
 
-    # Flags to track where we are
-    in_objects = False
-    in_init = False
-    in_goal = False
+    # Parse objects
+    # objects_str might look like: "(obj1 obj2 - type obj3 - type ...)"
+    # Remove outer parentheses
+    if objects_str.startswith('(:objects') and objects_str.endswith(')'):
+        objects_str = objects_str[9:-1].strip()
 
-    init_lines = []
-    goal_lines = []
-    objects_lines = []
-
-    for line in lines:
-        # Detect the start and end of :objects section
-        if '(:objects' in line:
-            in_objects = True
-            after_objects = line.split('(:objects', 1)[-1].strip()
-            if after_objects and not after_objects.startswith(')'):
-                objects_lines.append(after_objects)
-            continue
-        if in_objects:
-            if ')' in line:
-                # The objects section ends here
-                part = line.split(')')[0].strip()
-                if part:
-                    objects_lines.append(part)
-                in_objects = False
-            else:
-                objects_lines.append(line)
-            continue
-
-        # Detect the start and end of :init section
-        if '(:init' in line:
-            in_init = True
-            after_init = line.split('(:init', 1)[-1].strip()
-            if after_init.startswith("("):
-                after_init = after_init[1:].strip()
-            if after_init and not after_init.startswith(')'):
-                init_lines.append(after_init)
-            continue
-        if in_init:
-            if ')' == line:
-                part = line.split(')')[0].strip()
-                if part:
-                    init_lines.append(part)
-                in_init = False
-            else:
-                init_lines.append(line)
-            continue
-
-        # Detect the start and end of :goal section
-        if '(:goal' in line:
-            in_goal = True
-            after_goal = line.split('(:goal', 1)[-1].strip()
-            if after_goal.startswith("("):
-                after_goal = after_goal[1:].strip()
-            if after_goal and not after_goal.startswith(')'):
-                goal_lines.append(after_goal)
-            continue
-        # skip '(and' lines inside goal
-        if line == "(and":
-            continue
-        if in_goal:
-            if ')' in line:
-                part = line.split(')')[0].strip()
-                if part:
-                    goal_lines.append(part)
-                in_goal = False
-            else:
-                goal_lines.append(line)
-
-    # Parse :objects section
-    # Objects lines might look like:
-    # agent_n_01_1 - agent basket_n_01_1 basket_n_01_2 - basket_n_01 ...
-    # We'll parse them token by token:
-    object_tokens = " ".join(objects_lines).split()
-    # The pattern is generally: obj1 obj2 ... - type obj3 ... - type ...
-    # We'll group them accordingly
+    object_tokens = objects_str.split()
     temp_objs = []
     current_type = None
-
     i = 0
     while i < len(object_tokens):
         token = object_tokens[i]
         if token == '-':
-            # Next token is a type
             i += 1
             current_type = object_tokens[i]
             # Assign the objects collected so far to this type
             if current_type == 'agent':
-                characters.update(temp_objs)
+                for obj_name in temp_objs:
+                    characters.add(obj_name)
+                    object_types[obj_name] = 'agent'
             else:
-                all_objects.update(temp_objs)
+                for obj_name in temp_objs:
+                    all_objects.add(obj_name)
+                    object_types[obj_name] = current_type
             temp_objs = []
         else:
-            # It's an object name
             temp_objs.append(token)
         i += 1
 
-    # If there's a trailing list of objects without a '- type', assume object type
-    if temp_objs:
-        all_objects.update(temp_objs)
+    # # If trailing objects without a type:
+    # for obj_name in temp_objs:
+    #     if obj_name not in object_types:
+    #         object_types[obj_name] = 'object'
+    #     all_objects.add(obj_name)
 
-    # Parse :init section
-    init_block_str = " ".join(init_lines)
-    init_predicates = extract_predicates(init_block_str)
+    # Parse :init
+    # init_str might look like: "(pred arg1 arg2)(pred2 arg1) ..."
+    # Remove outer parentheses if any
+    init_str = init_str.strip()
+    if init_str.startswith('(') and init_str.endswith(')'):
+        init_str = init_str[1:-1].strip()
+    init_predicates = extract_predicates(init_str)
     for pred, args in init_predicates:
         if pred not in initial_state:
             initial_state[pred] = set()
         initial_state[pred].add(tuple(args))
 
-    # Parse :goal section
-    goal_block_str = " ".join(goal_lines)
-    goal_predicates = extract_predicates(goal_block_str)
+    # Parse :goal
+    # goal_str might look like: "(and (pred arg1 arg2) (pred arg1))"
+    # We'll remove the leading 'and' if present
+    goal_str = goal_str.strip()
+    if goal_str.startswith('(:goal (and'):
+        # Remove '(and' and the corresponding closing ')'
+        # Find the first '(' after '(and'
+        inner = goal_str[len('(:goal (and'):].strip()
+        # if inner.startswith('(') and inner.endswith(')'):
+        #     inner = inner[1:-1].strip()
+        goal_str = inner
+    else:
+        # Remove outer parentheses if any
+        if goal_str.startswith('(') and goal_str.endswith(')'):
+            goal_str = goal_str[1:-1].strip()
+
+    goal_predicates = extract_predicates(goal_str)
     for pred, args in goal_predicates:
-        if pred != 'and' and pred not in goal_conditions:
-            goal_conditions[pred] = set()
         if pred != 'and':
+            if pred not in goal_conditions:
+                goal_conditions[pred] = set()
             goal_conditions[pred].add(tuple(args))
 
-    return initial_state, goal_conditions, all_objects, characters
+    return initial_state, goal_conditions, all_objects, characters, object_types
 
 
 def extract_predicates(block_str):
@@ -163,9 +136,10 @@ def extract_predicates(block_str):
             depth -= 1
             if depth == 0 and current_expr.strip():
                 parts = current_expr.strip().split()
-                pred = parts[0]
-                args = parts[1:]
-                predicates.append((pred, args))
+                if parts:
+                    pred = parts[0]
+                    args = parts[1:]
+                    predicates.append((pred, args))
         else:
             if depth > 0:
                 current_expr += ch

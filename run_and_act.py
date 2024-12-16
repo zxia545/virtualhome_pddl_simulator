@@ -758,16 +758,15 @@ def remove_effects(new_state, effects_list, param_map):
 ########################################################################################################################################
 
 # Example sets of domain objects
-all_objects = {"bathroom", "ground_coffee", "water", "coffe_maker", "coffee_filter", "dining_room"}
-characters = {"character"}  # we know 'character' is a character type
 
 
 from load_pddl import *
 from copy import deepcopy
 
 # Load the PDDL problem file
-file_path = "virtual_pddls/183_2.pddl"  # Replace with your PDDL problem file path
-initial_state, goal_conditions = load_pddl_problem_line_by_line(file_path)
+file_path = "virtual_pddls/310_2.pddl"  # Replace with your PDDL problem file path
+initial_state, goal_conditions, all_objects, characters = load_pddl_problem_line_by_line(file_path)
+
 
 # Load the SAS plan file
 sas_plan_path = "sas_plan"  # Replace with your SAS plan file path

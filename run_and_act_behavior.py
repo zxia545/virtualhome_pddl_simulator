@@ -631,8 +631,10 @@ def check_goal(state, goal_conditions):
 
 if __name__ == "__main__":
     # Provide paths to PDDL problem and SAS plan
-    problem_file = sys.argv[1] if len(sys.argv) > 1 else "behavior_pddls/chopping_vegetables_0_Rs_int_0_2021-05-25_22-01-16.pddl"
-    plan_file = sys.argv[2] if len(sys.argv) > 2 else "sas_plan"
+    pddl_file_name = "boxing_books_up_for_storage_0_Benevolence_1_int_0_2021-09-10_15-35-47"
+    
+    problem_file = f"behavior_pddls/{pddl_file_name}.pddl"
+    plan_file = f"sas_plans/{pddl_file_name}"
 
     initial_state, goal_conditions, all_objects, characters, object_types = load_pddl_problem_line_by_line(problem_file)
 
@@ -663,6 +665,7 @@ if __name__ == "__main__":
             print("Action executed:", action_name, args)
             print("Added:", added)
             print("Removed:", removed)
+            print()
             if check_goal(state, goal_conditions):
                 print("Goal reached after step:", step + 1)
                 break

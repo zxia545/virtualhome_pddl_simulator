@@ -759,9 +759,14 @@ def remove_effects(new_state, effects_list, param_map):
 
 # Example sets of domain objects
 
+########################################################################################################################################
 
 from load_pddl import *
 from copy import deepcopy
+
+
+
+# Note: Available pddl: 101_2, 183_2, 310_2, 729_2
 pddl_name = "310_2"
 # Load the PDDL problem file
 file_path = f"virtual_pddls/{pddl_name}.pddl"  # Replace with your PDDL problem file path

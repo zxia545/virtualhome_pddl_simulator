@@ -1,4 +1,4 @@
-
+from virtualhome_pddl_to_text import generate_state_description, generate_diff_description, generate_init_description
 actions = {
     "walk_towards": {
         "parameters": ["?char", "?obj"],
@@ -678,18 +678,40 @@ def compute_state_diff(old_state, new_state):
 
 def check_goal(state, goal_conditions):
     """
-    Check if the current state meets all goal conditions.
-    goal_conditions is a dict of pred -> set of arg tuples.
-    We must ensure for each pred and each arg tuple in goal_conditions,
-    that they appear in state.
+    Check if the current state meets all goal conditions and calculate the percentage of goals achieved.
+    
+    Parameters:
+        state (dict): The current state as a dictionary with predicates as keys and sets of argument tuples as values.
+        goal_conditions (dict): The goal conditions as a dictionary with predicates as keys and sets of argument tuples as values.
+    
+    Returns:
+        tuple:
+            - is_goal_met (bool): True if all goal conditions are met, False otherwise.
+            - percentage_met (float): Percentage of goal conditions met.
     """
+    total_goals = 0
+    matched_goals = 0
+    
+    # Iterate through each predicate and its associated argument tuples in goal_conditions
     for pred, tuples in goal_conditions.items():
-        if pred not in state:
-            return False
         for t in tuples:
-            if t not in state[pred]:
-                return False
-    return True
+            total_goals += 1  # Increment the total number of goals
+            # Check if the predicate exists in the state and if the specific argument tuple is present
+            if pred in state and t in state[pred]:
+                matched_goals += 1  # Increment the count of matched goals
+    
+    # Handle the case where there are no goals defined
+    if total_goals == 0:
+        return (True, 100.0)
+    
+    # Calculate the percentage of goals met
+    percentage_met = (matched_goals / total_goals) * 100
+    
+    # Determine if all goals are met
+    is_goal_met = (matched_goals == total_goals)
+    
+    return (is_goal_met, percentage_met)
+
 
 def substitute(args, param_map):
     return tuple(param_map.get(a, a) for a in args)
@@ -789,26 +811,32 @@ for action_line in sas_plan:
 
 # Initialize the state
 state = deepcopy(initial_state)
-
+init_descri = generate_init_description(file_path)
+print(init_descri)
 # Execute the plan
 for step, (action_name, args) in enumerate(parsed_plan):
     print(f"Step {step + 1}: {action_name} {args}")
     if check_preconditions(state, actions[action_name], args):
         old_state = deepcopy(state)
         state = apply_action(state, actions[action_name], args)
+        # current_state_description = generate_state_description(state)
+        # print(current_state_description)
 
         # Compute and print state differences
         added, removed = compute_state_diff(old_state, state)
         print("\nAction executed:", action_name, args)
-        print("Added:", added)
-        print("Removed:", removed)
+        print(generate_diff_description(added, removed))
     else:
         print(f"Preconditions not met for {action_name} {args}. Execution halted.")
         break
 
     # Check if the goal is reached
-    if check_goal(state, goal_conditions):
+    isgoal, progress_rate = check_goal(state, goal_conditions)
+    if isgoal:
         print("\nGoal reached after step:", step + 1)
         break
+    else:
+        print(f'Current Progress rate is: {progress_rate}%')
+        print()
 else:
     print("\nPlan executed but goal not reached.")

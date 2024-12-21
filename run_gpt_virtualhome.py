@@ -1,5 +1,6 @@
 from openai import OpenAI
 from run_and_act_virtualhome import *
+from virtualhome_pddl_to_text import generate_diff_trajectory_description
 from load_pddl import *
 from copy import deepcopy
 import re
@@ -88,6 +89,8 @@ def execute_action(action_name, args, state, actions, all_objects, characters):
     return new_state, added, removed, None
 
 def run_interactive_session(initial_state,init_description, goal_conditions, all_objects, characters, actions, max_steps=30):
+    final_trajectory = []
+    
     state = deepcopy(initial_state)
 
     # Demonstration example to show GPT how we format steps and actions:
@@ -190,34 +193,48 @@ def run_interactive_session(initial_state,init_description, goal_conditions, all
 
     step = 0
     for step in range(max_steps):
+        current_step_trajectory = {"action": "", "observation": ""}
+        
         gpt_response = query_gpt(messages)
         action_name, args = parse_gpt_action(gpt_response)
         
         current_gpt_response = f"Current GPT response:\n{gpt_response}\n\n"
-
+        
+        
+        
         if action_name is None:
+            current_step_trajectory["action"] = current_gpt_response    
             # GPT didn't provide a valid action format
             error_msg = ("I could not parse your action. Please reply with a single action "
                          "in uppercase format: ACTION(ARG1, ARG2, ...)")
             print(error_msg)
             messages.append({"role": "user", "content": current_gpt_response + error_msg})
             continue
+        
+        current_step_trajectory["action"] = format_action_execution(action_name, args)
 
         if action_name == "current_state":
             # GPT requests current state
             current_state_desc = generate_state_description(state)
+            
+            current_step_trajectory["observation"] = current_state_desc
             # Provide current state and ask for next action without executing anything
             print("GPT requested CURRENT_STATE. Providing current state.")
             messages.append({"role": "user", "content": f"{current_gpt_response} Current State:\n{current_state_desc}\n\nPlease propose your next action."})
+            
+            final_trajectory.append(current_step_trajectory)
             continue
 
         # Execute the action normally
         new_state, added, removed, error_msg = execute_action(action_name, args, state, actions, all_objects, characters)
 
         if error_msg:
+            current_step_trajectory["observation"] = "Nothing happens."
             # Action failed
             print(f"Error: {error_msg}")
             messages.append({"role": "user", "content": f"{current_gpt_response} {error_msg}\nPlease propose another action."})
+            
+            final_trajectory.append(current_step_trajectory)
             continue
 
         # Action succeeded
@@ -227,10 +244,13 @@ def run_interactive_session(initial_state,init_description, goal_conditions, all
 
         # Generate observation text
         obs_text = generate_diff_description(added, removed)
-
+        this_step_observation = generate_diff_trajectory_description(added, removed)
         # Check goal progress
         is_goal_met, progress_rate = check_goal(state, goal_conditions)
+        
+        
         if is_goal_met:
+            this_step_observation += f"\nGoal reached after step {step+1}!"
             print(f"Goal reached after step {step+1}!")
             user_update = (
                 f'{current_gpt_response}'
@@ -240,6 +260,9 @@ def run_interactive_session(initial_state,init_description, goal_conditions, all
                 "Goal reached! No more actions needed."
             )
             messages.append({"role": "user", "content": user_update})
+            
+            current_step_trajectory["observation"] = this_step_observation
+            final_trajectory.append(current_step_trajectory)
             break
         else:
             # After a normal action, only provide observations and progress,
@@ -254,6 +277,9 @@ def run_interactive_session(initial_state,init_description, goal_conditions, all
                 "If you need the current state, call CURRENT_STATE(). Otherwise, propose the next action."
             )
             messages.append({"role": "user", "content": user_update})
+            
+            current_step_trajectory["observation"] = this_step_observation
+            final_trajectory.append(current_step_trajectory)
 
     else:
         is_goal_met, progress_rate = check_goal(state, goal_conditions)
@@ -267,6 +293,12 @@ def run_interactive_session(initial_state,init_description, goal_conditions, all
     with open("gpt_messages_1.txt", "w") as f:
         for message in messages:
             f.write(f"{message['role']}: {message['content']}\n\n")
+    
+    with open("gpt_trajectory_1.txt", "w") as f:
+        for step, trajectory in enumerate(final_trajectory):
+            f.write(f"Step {step+1}:\n")
+            f.write(f"Action: {trajectory['action']}\n")
+            f.write(f"Observation: {trajectory['observation']}\n\n")
 
 
 

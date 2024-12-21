@@ -425,6 +425,32 @@ def parse_pddl_problem(pddl_text, initial_state, goals):
         "goals": goals
     }
 
+
+def generate_diff_trajectory_description(added, removed):
+	final_traj = ""
+
+	added_sentences = predicates_to_sentences(added)
+	removed_sentences = predicates_to_sentences(removed)
+
+	num_added = len(added_sentences)
+	num_removed = len(removed_sentences)
+
+	for i in range(num_added):
+		if i == num_added - 1:
+			final_traj += f"{added_sentences[i][:-1]}."
+		else:
+			final_traj += f"{added_sentences[i][:-1]}, "
+
+	for i in range(num_removed):
+		if i == num_removed - 1:	
+			final_traj += f"{removed_sentences[i][:-1]}."	
+		else:
+			final_traj += f"{removed_sentences[i][:-1]}, "
+
+	if final_traj == "":
+		final_traj = "Nothing happens."
+	return final_traj
+
 # Function to parse the PDDL domain string
 def parse_pddl_domain(pddl_text):
     actions = {}
@@ -623,6 +649,10 @@ def generate_diff_description(added, removed):
 		description.append(f'- None')
 
 	return '\n'.join(description)
+
+
+
+
 
 def generate_init_description(problem_file_path):
 	# Read problem PDDL

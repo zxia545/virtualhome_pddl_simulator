@@ -87,7 +87,7 @@ def execute_action(action_name, args, state, actions, all_objects, characters):
     added, removed = compute_state_diff(old_state, new_state)
     return new_state, added, removed, None
 
-def run_interactive_session(initial_state, goal_conditions, all_objects, characters, actions, max_steps=30):
+def run_interactive_session(initial_state,init_description, goal_conditions, all_objects, characters, actions, max_steps=30):
     state = deepcopy(initial_state)
 
     # Demonstration example to show GPT how we format steps and actions:
@@ -175,7 +175,7 @@ def run_interactive_session(initial_state, goal_conditions, all_objects, charact
         "Start by proposing the first action for the current problem now."
     )
 
-    init_description = generate_init_description("virtual_pddls/183_2.pddl")
+    
 
     # Initial user prompt includes the initial state and goals.
     user_prompt = (
@@ -232,7 +232,14 @@ def run_interactive_session(initial_state, goal_conditions, all_objects, charact
         is_goal_met, progress_rate = check_goal(state, goal_conditions)
         if is_goal_met:
             print(f"Goal reached after step {step+1}!")
-            messages.append({"role": "user", "content": "Goal reached! No more actions needed."})
+            user_update = (
+                f'{current_gpt_response}'
+                f"Action executed: {action_description}\n\n"
+                f"{obs_text}\n"
+                f"Current Progress rate is: {progress_rate:.1f}%\n\n"
+                "Goal reached! No more actions needed."
+            )
+            messages.append({"role": "user", "content": user_update})
             break
         else:
             # After a normal action, only provide observations and progress,
@@ -242,19 +249,22 @@ def run_interactive_session(initial_state, goal_conditions, all_objects, charact
                 f"Action executed: {action_description}\n\n"
                 f"{obs_text}\n"
                 f"Current Progress rate is: {progress_rate:.1f}%\n\n"
+                "You must respond with exactly one action in the form: ACTION(ARG1, ARG2, ...)\n"
+                "The ACTION name must be uppercase and arguments separated by commas."
                 "If you need the current state, call CURRENT_STATE(). Otherwise, propose the next action."
             )
             messages.append({"role": "user", "content": user_update})
 
     else:
-        print("Max steps reached without reaching the goal.")
-        # final prgress rate
         is_goal_met, progress_rate = check_goal(state, goal_conditions)
-        print(f"Final Progress rate is: {progress_rate:.1f}%")
+        user_message = (f"Max steps reached without reaching the goal.\n"
+                        f'Final Progress rate is: {progress_rate:.1f}%')
+        print(user_message)
+        messages.append({"role": "user", "content": user_message})
     
     
     # save messages to a file
-    with open("gpt_messages.txt", "w") as f:
+    with open("gpt_messages_1.txt", "w") as f:
         for message in messages:
             f.write(f"{message['role']}: {message['content']}\n\n")
 
@@ -264,9 +274,11 @@ if __name__ == "__main__":
     import run_and_act_virtualhome
     pddl_name = "310_2"
     file_path = f"virtual_pddls/{pddl_name}.pddl"
+    init_description = generate_init_description(f"virtual_pddls/{pddl_name}.pddl")
+    
     initial_state, goal_conditions, all_objects, characters = load_pddl_problem_line_by_line(file_path)
     # assign the global variables in run_and_act_virtualhome
     run_and_act_virtualhome.all_objects = all_objects
     run_and_act_virtualhome.characters = characters
     
-    run_interactive_session(initial_state, goal_conditions, all_objects, characters, actions, max_steps=30)
+    run_interactive_session(initial_state, init_description, goal_conditions, all_objects, characters, actions, max_steps=30)

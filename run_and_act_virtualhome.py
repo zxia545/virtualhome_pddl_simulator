@@ -1,4 +1,7 @@
+from load_pddl import *
+from copy import deepcopy
 from virtualhome_pddl_to_text import generate_state_description, generate_diff_description, generate_init_description
+
 actions = {
     "walk_towards": {
         "parameters": ["?char", "?obj"],
@@ -533,6 +536,7 @@ actions = {
 
 }
 
+global all_objects, characters
 
 def apply_action(state, action_def, args):
     """
@@ -782,61 +786,56 @@ def remove_effects(new_state, effects_list, param_map):
 # Example sets of domain objects
 
 ########################################################################################################################################
-
-from load_pddl import *
-from copy import deepcopy
-
-
-
-# Note: Available pddl: 101_2, 183_2, 310_2, 729_2
-pddl_name = "183_2"
-# Load the PDDL problem file
-file_path = f"virtual_pddls/{pddl_name}.pddl"  # Replace with your PDDL problem file path
-initial_state, goal_conditions, all_objects, characters = load_pddl_problem_line_by_line(file_path)
+if __name__ == "__main__":
+    # Note: Available pddl: 101_2, 183_2, 310_2, 729_2
+    pddl_name = "183_2"
+    # Load the PDDL problem file
+    file_path = f"virtual_pddls/{pddl_name}.pddl"  # Replace with your PDDL problem file path
+    initial_state, goal_conditions, all_objects, characters = load_pddl_problem_line_by_line(file_path)
 
 
-# Load the SAS plan file
-sas_plan_path = f"sas_plans/{pddl_name}"  # Replace with your SAS plan file path
-with open(sas_plan_path, "r") as plan_file:
-    sas_plan = [line.strip() for line in plan_file.readlines() if line.strip() and not line.startswith(";")]
+    # Load the SAS plan file
+    sas_plan_path = f"sas_plans/{pddl_name}"  # Replace with your SAS plan file path
+    with open(sas_plan_path, "r") as plan_file:
+        sas_plan = [line.strip() for line in plan_file.readlines() if line.strip() and not line.startswith(";")]
 
-# Parse the SAS plan into action names and arguments
-parsed_plan = []
-for action_line in sas_plan:
-    action_line = action_line.strip("()")  # Remove parentheses
-    parts = action_line.split()
-    action_name = parts[0]
-    args = parts[1:]
-    parsed_plan.append((action_name, args))
+    # Parse the SAS plan into action names and arguments
+    parsed_plan = []
+    for action_line in sas_plan:
+        action_line = action_line.strip("()")  # Remove parentheses
+        parts = action_line.split()
+        action_name = parts[0]
+        args = parts[1:]
+        parsed_plan.append((action_name, args))
 
-# Initialize the state
-state = deepcopy(initial_state)
-init_descri = generate_init_description(file_path)
-print(init_descri)
-# Execute the plan
-for step, (action_name, args) in enumerate(parsed_plan):
-    print(f"Step {step + 1}: {action_name} {args}")
-    if check_preconditions(state, actions[action_name], args):
-        old_state = deepcopy(state)
-        state = apply_action(state, actions[action_name], args)
-        # current_state_description = generate_state_description(state)
-        # print(current_state_description)
+    # Initialize the state
+    state = deepcopy(initial_state)
+    init_descri = generate_init_description(file_path)
+    print(init_descri)
+    # Execute the plan
+    for step, (action_name, args) in enumerate(parsed_plan):
+        print(f"Step {step + 1}: {action_name} {args}")
+        if check_preconditions(state, actions[action_name], args):
+            old_state = deepcopy(state)
+            state = apply_action(state, actions[action_name], args)
+            # current_state_description = generate_state_description(state)
+            # print(current_state_description)
 
-        # Compute and print state differences
-        added, removed = compute_state_diff(old_state, state)
-        print("\nAction executed:", action_name, args)
-        print(generate_diff_description(added, removed))
+            # Compute and print state differences
+            added, removed = compute_state_diff(old_state, state)
+            print("\nAction executed:", action_name, args)
+            print(generate_diff_description(added, removed))
+        else:
+            print(f"Preconditions not met for {action_name} {args}. Execution halted.")
+            break
+
+        # Check if the goal is reached
+        isgoal, progress_rate = check_goal(state, goal_conditions)
+        if isgoal:
+            print("\nGoal reached after step:", step + 1)
+            break
+        else:
+            print(f'Current Progress rate is: {progress_rate}%')
+            print()
     else:
-        print(f"Preconditions not met for {action_name} {args}. Execution halted.")
-        break
-
-    # Check if the goal is reached
-    isgoal, progress_rate = check_goal(state, goal_conditions)
-    if isgoal:
-        print("\nGoal reached after step:", step + 1)
-        break
-    else:
-        print(f'Current Progress rate is: {progress_rate}%')
-        print()
-else:
-    print("\nPlan executed but goal not reached.")
+        print("\nPlan executed but goal not reached.")

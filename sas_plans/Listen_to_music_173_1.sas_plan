@@ -1,0 +1,5 @@
+(standup character)
+(walk_towards character cd_player)
+(plug_in character cd_player)
+(switch_on character cd_player)
+; cost = 4 (unit cost)

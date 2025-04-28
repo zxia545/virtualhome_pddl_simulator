@@ -1,0 +1,5 @@
+(walk_towards character bed)
+(walk_towards character nightstand)
+(open character nightstand)
+(grab character novel)
+; cost = 4 (unit cost)

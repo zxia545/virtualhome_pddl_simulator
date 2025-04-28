@@ -1,0 +1,3 @@
+(walk_towards character coffee_cup)
+(sit character couch)
+; cost = 2 (unit cost)

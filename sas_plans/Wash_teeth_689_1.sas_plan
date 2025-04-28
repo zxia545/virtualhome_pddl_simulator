@@ -1,0 +1,5 @@
+(walk_towards character tooth_paste)
+(walk_towards character toothbrush)
+(grab character toothbrush_holder)
+(grab character toothbrush)
+; cost = 4 (unit cost)

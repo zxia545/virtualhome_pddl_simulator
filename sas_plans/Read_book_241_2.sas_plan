@@ -1,0 +1,4 @@
+(standup character)
+(walk_towards character novel)
+(grab character novel)
+; cost = 3 (unit cost)

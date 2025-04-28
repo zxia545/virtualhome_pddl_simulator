@@ -1,0 +1,4 @@
+(walk_towards character cup)
+(open character kitchen_cabinet)
+(grab character cup)
+; cost = 3 (unit cost)

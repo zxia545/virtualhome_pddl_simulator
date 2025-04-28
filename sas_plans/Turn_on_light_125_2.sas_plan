@@ -1,0 +1,4 @@
+(walk_towards character chair)
+(plug_in character light)
+(switch_on character light)
+; cost = 3 (unit cost)

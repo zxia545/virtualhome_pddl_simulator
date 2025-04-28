@@ -1,0 +1,3 @@
+(walk_towards character dresser)
+(sit character toilet)
+; cost = 2 (unit cost)

@@ -1,0 +1,4 @@
+(turn_to character television)
+(walk_towards character television)
+(switch_on character television)
+; cost = 3 (unit cost)

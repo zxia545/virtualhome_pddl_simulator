@@ -1,0 +1,3 @@
+(walk_towards character laptop)
+(switch_on character laptop)
+; cost = 2 (unit cost)

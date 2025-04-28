@@ -1,0 +1,4 @@
+(walk_towards character floor_lamp)
+(plug_in character floor_lamp)
+(switch_on character floor_lamp)
+; cost = 3 (unit cost)

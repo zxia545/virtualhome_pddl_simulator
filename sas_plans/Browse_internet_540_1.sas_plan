@@ -1,0 +1,4 @@
+(turn_to character phone)
+(walk_towards character phone)
+(grab character phone)
+; cost = 3 (unit cost)

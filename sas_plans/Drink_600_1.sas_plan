@@ -1,0 +1,4 @@
+(walk_towards character freezer)
+(open character freezer)
+(grab character water_glass)
+; cost = 3 (unit cost)

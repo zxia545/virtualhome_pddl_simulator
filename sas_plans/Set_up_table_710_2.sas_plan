@@ -1,0 +1,5 @@
+(walk_towards character kitchen_cabinet)
+(open character kitchen_cabinet)
+(grab character plate)
+(put_on character plate table)
+; cost = 4 (unit cost)

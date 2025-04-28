@@ -1,0 +1,3 @@
+(turn_to character toilet)
+(walk_into character bathroom)
+; cost = 2 (unit cost)

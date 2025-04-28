@@ -1,0 +1,8 @@
+(walk_towards character food_vegetable)
+(walk_towards character oven)
+(open character oven)
+(grab character pot)
+(close character oven)
+(switch_on character oven)
+(put_on character pot oven)
+; cost = 7 (unit cost)

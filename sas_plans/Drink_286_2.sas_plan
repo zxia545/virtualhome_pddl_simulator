@@ -1,0 +1,4 @@
+(walk_towards character cupboard)
+(open character cupboard)
+(grab character water_glass)
+; cost = 3 (unit cost)

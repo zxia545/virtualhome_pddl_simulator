@@ -1,0 +1,5 @@
+(walk_towards character faucet)
+(walk_towards character kitchen_cabinet)
+(open character kitchen_cabinet)
+(grab character water_glass)
+; cost = 4 (unit cost)

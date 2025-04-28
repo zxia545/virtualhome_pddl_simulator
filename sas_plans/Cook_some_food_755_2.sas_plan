@@ -1,0 +1,6 @@
+(walk_towards character kitchen_cabinet)
+(switch_on character oven)
+(open character kitchen_cabinet)
+(grab character sauce_pan)
+(put_on character sauce_pan oven)
+; cost = 5 (unit cost)

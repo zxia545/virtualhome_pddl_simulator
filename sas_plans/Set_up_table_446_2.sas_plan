@@ -1,0 +1,6 @@
+(walk_towards character cupboard)
+(open character cupboard)
+(grab character plate)
+(walk_towards character mat)
+(put_on character plate table)
+; cost = 5 (unit cost)

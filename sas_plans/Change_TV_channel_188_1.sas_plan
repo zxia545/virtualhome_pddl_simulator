@@ -1,0 +1,6 @@
+(turn_to character television)
+(walk_towards character chair)
+(walk_towards character remote_control)
+(switch_on character television)
+(grab character remote_control)
+; cost = 5 (unit cost)

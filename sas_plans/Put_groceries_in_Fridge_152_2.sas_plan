@@ -1,0 +1,5 @@
+(walk_towards character food_food)
+(open character freezer)
+(grab character food_food)
+(put_inside character food_food freezer)
+; cost = 4 (unit cost)

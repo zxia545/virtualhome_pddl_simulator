@@ -1,0 +1,5 @@
+(walk_towards character bookmark)
+(walk_towards character couch)
+(grab character novel)
+(grab character novel)
+; cost = 4 (unit cost)

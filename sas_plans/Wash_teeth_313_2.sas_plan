@@ -1,0 +1,4 @@
+(walk_towards character sink)
+(grab character teeth)
+(grab character toothbrush)
+; cost = 3 (unit cost)

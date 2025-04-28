@@ -1,0 +1,4 @@
+(standup character)
+(walk_towards character light)
+(switch_on character light)
+; cost = 3 (unit cost)

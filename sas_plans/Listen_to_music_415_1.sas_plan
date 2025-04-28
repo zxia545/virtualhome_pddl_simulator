@@ -1,0 +1,4 @@
+(walk_towards character headset)
+(grab character headset)
+(put_on_character character headset)
+; cost = 3 (unit cost)

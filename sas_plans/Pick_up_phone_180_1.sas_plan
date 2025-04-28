@@ -1,0 +1,4 @@
+(standup character)
+(walk_towards character ceiling)
+(grab character phone)
+; cost = 3 (unit cost)

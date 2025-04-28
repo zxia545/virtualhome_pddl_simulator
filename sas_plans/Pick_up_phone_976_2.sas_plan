@@ -1,0 +1,3 @@
+(walk_towards character desk)
+(grab character phone)
+; cost = 2 (unit cost)

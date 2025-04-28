@@ -1,0 +1,4 @@
+(walk_towards character computer)
+(plug_in character computer)
+(switch_on character computer)
+; cost = 3 (unit cost)

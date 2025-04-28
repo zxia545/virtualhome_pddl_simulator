@@ -1,0 +1,109 @@
+Step 1:
+Action: WALK_INTO(character, dining_room)
+Observation: character is inside dining_room.
+
+Step 2:
+Action: GRAB(character, coffee_filter)
+Observation: Nothing happens.
+
+Step 3:
+Action: GRAB(character, ground_coffee)
+Observation: Nothing happens.
+
+Step 4:
+Action: GRAB(character, water)
+Observation: Nothing happens.
+
+Step 5:
+Action: GRAB(character, coffee_filter)
+Observation: Nothing happens.
+
+Step 6:
+Action: GRAB(character, coffe_maker)
+Observation: Nothing happens.
+
+Step 7:
+Action: CURRENT_STATE()
+Observation: **Current State:**
+- coffe_maker is inside the dining_room.
+- water is inside the dining_room.
+- coffee_filter is inside the dining_room.
+- ground_coffee is inside the dining_room.
+- coffe_maker is next to coffee_filter.
+- water is next to coffe_maker.
+- coffee_filter is next to coffe_maker.
+- coffe_maker is next to water.
+- ground_coffee is next to coffee_filter.
+- coffee_filter is next to ground_coffee.
+- coffee_filter has paper.
+- coffe_maker is a recipient.
+- coffe_maker has a plug.
+- water is pourable.
+- coffe_maker is closed.
+- coffe_maker has a switch.
+- coffe_maker is movable.
+- coffee_filter is movable.
+- ground_coffee is movable.
+- coffe_maker is clean.
+- coffe_maker is off.
+- coffe_maker is a container.
+- water is drinkable.
+- coffe_maker can be opened.
+- ground_coffee can be opened.
+- ground_coffee is inside coffe_maker.
+- water is inside coffe_maker.
+- character is inside bathroom.
+- character is inside dining_room.
+- coffee_filter is grabbable.
+- ground_coffee is grabbable.
+- coffe_maker is plugged in.
+
+Step 8:
+Action: WALK_TOWARDS(character, coffee_filter)
+Observation: character is next to coffe_maker, character is next to coffee_filter, character is next to ground_coffee.
+
+Step 9:
+Action: GRAB(character, coffee_filter)
+Observation: character is holding coffee_filter with right hand.
+
+Step 10:
+Action: PUT_ON(character, coffee_filter, coffe_maker)
+Observation: coffee_filter is on top of coffe_maker.character is holding coffee_filter with right hand.
+
+Step 11:
+Action: GRAB(character, ground_coffee)
+Observation: Nothing happens.
+
+Step 12:
+Action: GRAB(character, water)
+Observation: Nothing happens.
+
+Step 13:
+Action: GRAB(character, coffe_maker)
+Observation: Nothing happens.
+
+Step 14:
+Action: OPEN(character, coffe_maker)
+Observation: coffe_maker is open.coffe_maker is closed.
+
+Step 15:
+Action: PUT_ON(character, ground_coffee, coffe_maker)
+Observation: Nothing happens.
+
+Step 16:
+Action: GRAB(character, ground_coffee)
+Observation: character is holding ground_coffee with right hand.
+
+Step 17:
+Action: PUT_ON(character, ground_coffee, coffe_maker)
+Observation: ground_coffee is next to coffe_maker, ground_coffee is on top of coffe_maker.character is holding ground_coffee with right hand.
+
+Step 18:
+Action: CLOSE(character, coffe_maker)
+Observation: coffe_maker is closed.
+
+Step 19:
+Action: SWITCH_ON(character, coffe_maker)
+Observation: coffe_maker is on coffe_maker.coffe_maker is off.
+Goal reached after step 19!
+

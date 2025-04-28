@@ -1,0 +1,4 @@
+(walk_towards character drinking_glass)
+(open character freezer)
+(grab character drinking_glass)
+; cost = 3 (unit cost)

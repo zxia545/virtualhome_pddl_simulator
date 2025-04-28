@@ -1,0 +1,8 @@
+(turn_to character computer)
+(walk_into character home_office)
+(walk_towards character chair)
+(plug_in character computer)
+(switch_on character computer)
+(grab character mouse)
+(grab character keyboard)
+; cost = 7 (unit cost)

@@ -20,13 +20,12 @@ from utils import (
 )
 from load_pddl import (
     load_pddl_problem_line_by_line,
-    generate_init_description,
-    generate_state_description # Added based on usage in original code
 )
 from virtualhome_pddl_to_text import (
     generate_diff_description,
     generate_diff_trajectory_description
 )
+from run_and_act_virtualhome import *
 # Import necessary functions and the 'actions' dictionary from run_and_act_virtualhome
 # IMPORTANT: Ensure 'actions' is defined appropriately in this module,
 # possibly loaded from a file or defined directly.

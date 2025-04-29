@@ -117,7 +117,7 @@ def execute_action(
     # 'run_and_act_virtualhome.py' MUST be modified to accept
     # 'all_objects' and 'characters' as parameters if it needs them.
     try:
-        preconditions_met = check_preconditions(state, action_def, args, all_objects, characters)
+        preconditions_met = check_preconditions(state, action_def, args)
     except TypeError as e:
         if "positional argument" in str(e) or "unexpected keyword argument" in str(e):
              print("\n\n*** ERROR ***")
